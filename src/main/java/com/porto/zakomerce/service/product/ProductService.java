@@ -2,6 +2,7 @@ package com.porto.zakomerce.service.product;
 
 import com.porto.zakomerce.dto.ImageDto;
 import com.porto.zakomerce.dto.ProductDto;
+import com.porto.zakomerce.exceptions.AlreadyExistsException;
 import com.porto.zakomerce.exceptions.ResourceNotFoundException;
 import com.porto.zakomerce.model.Category;
 import com.porto.zakomerce.model.Image;
@@ -33,6 +34,10 @@ public class ProductService implements IProductService {
         // If No, the save it as a new category
         // The set as the new product category.
 
+        if (productExists(request.getName(), request.getBrand())){
+            throw new AlreadyExistsException(request.getBrand() +" "+request.getName()+ " already exists, you may update this product instead!");
+        }
+
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() -> {
                     Category newCategory = new Category(request.getCategory().getName());
@@ -40,6 +45,10 @@ public class ProductService implements IProductService {
                 });
         request.setCategory(category);
         return productRepository.save(createProduct(request, category));
+    }
+
+    private boolean productExists(String name , String brand) {
+        return productRepository.existsByNameAndBrand(name, brand);
     }
 
     private Product createProduct(AddProductRequest request, Category category) {
@@ -53,19 +62,19 @@ public class ProductService implements IProductService {
         );
     }
 
-
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("Product not found!"));
     }
 
-    @Override
+  @Override
     public void deleteProductById(Long id) {
         productRepository.findById(id)
                 .ifPresentOrElse(productRepository::delete,
                         () -> {throw new ResourceNotFoundException("Product not found!");});
     }
+
 
     @Override
     public Product updateProduct(ProductUpdateRequest request, Long productId) {

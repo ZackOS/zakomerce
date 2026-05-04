@@ -1,10 +1,13 @@
 package com.porto.zakomerce.controller;
 
 import com.porto.zakomerce.exceptions.ResourceNotFoundException;
+import com.porto.zakomerce.model.Cart;
+import com.porto.zakomerce.model.User;
 import com.porto.zakomerce.response.ApiResponse;
 import com.porto.zakomerce.service.cart.CartItemService;
 import com.porto.zakomerce.service.cart.ICartItemService;
 import com.porto.zakomerce.service.cart.ICartService;
+import com.porto.zakomerce.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +20,18 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class CartItemController {
     private final ICartItemService cartItemService;
     private final ICartService cartService;
+    private final IUserService userService;
 
 
     @PostMapping("/item/add")
-    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam(required = false) Long cartId,
+    public ResponseEntity<ApiResponse> addItemToCart(
                                                      @RequestParam Long productId,
                                                      @RequestParam Integer quantity) {
         try {
-            if (cartId == null) {
-              cartId= cartService.initializeNewCart();
-            }
-            cartItemService.addItemToCart(cartId, productId, quantity);
+               User user = userService.getUserById(4L);
+              Cart cart= cartService.initializeNewCart(user);
+
+            cartItemService.addItemToCart(cart.getId(), productId, quantity);
             return ResponseEntity.ok(new ApiResponse("Add Item Success", null));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
