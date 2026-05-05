@@ -5,10 +5,6 @@ import com.porto.zakomerce.exceptions.ResourceNotFoundException;
 import com.porto.zakomerce.model.Order;
 import com.porto.zakomerce.response.ApiResponse;
 import com.porto.zakomerce.service.order.IOrderService;
-import com.porto.zakomerce.service.payment.PaymentInfo;
-import com.porto.zakomerce.service.payment.PaymentService;
-import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +17,15 @@ import java.util.List;
 @RequestMapping("${api.prefix}/orders")
 public class OrderController {
     private final IOrderService orderService;
-    private final PaymentService paymentService;
 
-    @PostMapping("/user/place-order")
+    @PostMapping("/order")
     public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId) {
         try {
             Order order =  orderService.placeOrder(userId);
             OrderDto orderDto =  orderService.convertToDto(order);
-            return ResponseEntity.ok(new ApiResponse("Items Order Success!", orderDto));
+            return ResponseEntity.ok(new ApiResponse("Item Order Success!", orderDto));
         } catch (Exception e) {
-            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error occurred!", e.getMessage()));
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error Occured!", e.getMessage()));
         }
     }
 
@@ -51,19 +46,6 @@ public class OrderController {
             return ResponseEntity.ok(new ApiResponse("Item Order Success!", order));
         } catch (ResourceNotFoundException e) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Oops!", e.getMessage()));
-        }
-    }
-
-    @PostMapping("/payment/create-payment-intent")
-    public ResponseEntity<String> createPaymentIntent(@RequestBody PaymentInfo paymentInfo) throws StripeException {
-        try {
-            System.out.println("The body :" +paymentInfo);
-            PaymentIntent paymentIntent = paymentService.createPaymentIntent(paymentInfo);
-            String paymentString = paymentIntent.toJson();
-            System.out.println("The payment string :" + paymentString);
-            return ResponseEntity.ok(paymentString);
-        } catch (StripeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

@@ -30,10 +30,16 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
 
 
     private void createDefaultUserIfNotExits(){
-        Role userRole = roleRepository.findByName("ROLE_USER").get();
-        for (int i = 1; i<=5; i++){
-            String defaultEmail = "sam"+i+"@email.com";
-            if (userRepository.existsByEmail(defaultEmail)){
+        // 1. Safely handle the role
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseGet(() -> {
+                    Role newRole = new Role("ROLE_USER");
+                    return roleRepository.save(newRole);
+                });
+
+        for (int i = 1; i <= 5; i++) {
+            String defaultEmail = "user" + i + "@email.com";
+            if (userRepository.existsByEmail(defaultEmail)) {
                 continue;
             }
             User user = new User();
@@ -43,7 +49,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
             user.setPassword(passwordEncoder.encode("123456"));
             user.setRoles(Set.of(userRole));
             userRepository.save(user);
-            System.out.println("Default vet user " + i + " created successfully.");
+            System.out.println("Default user " + i + " created successfully.");
         }
     }
 

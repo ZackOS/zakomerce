@@ -1,16 +1,13 @@
 package com.porto.zakomerce.service.cart;
 
-import com.porto.zakomerce.dto.CartDto;
 import com.porto.zakomerce.exceptions.ResourceNotFoundException;
 import com.porto.zakomerce.model.Cart;
+import com.porto.zakomerce.model.Product;
 import com.porto.zakomerce.model.User;
 import com.porto.zakomerce.repository.CartItemRepository;
 import com.porto.zakomerce.repository.CartRepository;
-import com.porto.zakomerce.repository.UserRepository;
 import com.porto.zakomerce.service.product.IProductService;
-import com.porto.zakomerce.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,35 +20,17 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CartService implements ICartService{
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final ModelMapper modelMapper;
-    private final IUserService userService;
+    private final AtomicLong cartIdGenerator = new AtomicLong(0);
+    private final IProductService productService;
 
     @Override
-    public Cart getCart(Long cartId) {
-        Cart cart = cartRepository.findById(cartId)
+    public Cart getCart(Long id) {
+        Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
         BigDecimal totalAmount = cart.getTotalAmount();
         cart.setTotalAmount(totalAmount);
         return cartRepository.save(cart);
     }
-
-
-    /*    @Override
-    public Cart getCart(Long userId) {
-        return Optional.ofNullable(getCartByUserId(userId))
-                .map(cart -> {
-                    // If the cart exists, return it
-                    BigDecimal totalAmount = cart.getTotalAmount();
-                    cart.setTotalAmount(totalAmount);
-                    return cartRepository.save(cart);
-                })
-                .orElseGet(() -> {
-                    // If the cart does not exist, initialize a new cart
-                    User user = Optional.ofNullable(userService.getUserById(userId))
-                            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-                    return initializeNewCart(user);
-                });
-    }*/
 
     @Transactional
     @Override
@@ -79,13 +58,8 @@ public class CartService implements ICartService{
                 });
     }
 
-  @Override
-    public Cart getCartByUserId(Long userId) {
-       return cartRepository.findByUserId(userId);
-    }
-
     @Override
-    public CartDto convertToDto(Cart cart){
-        return modelMapper.map(cart, CartDto.class);
+    public Cart getCartByUserId(Long userId) {
+        return cartRepository.findByUserId(userId);
     }
 }

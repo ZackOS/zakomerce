@@ -1,6 +1,5 @@
 package com.porto.zakomerce.controller;
 
-import com.porto.zakomerce.dto.CartDto;
 import com.porto.zakomerce.exceptions.ResourceNotFoundException;
 import com.porto.zakomerce.model.Cart;
 import com.porto.zakomerce.response.ApiResponse;
@@ -20,25 +19,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class CartController {
     private final ICartService cartService;
 
- /*   @GetMapping("/{cartId}/my-cart")
+    @GetMapping("/{cartId}/my-cart")
     public ResponseEntity<ApiResponse> getCart( @PathVariable Long cartId) {
         try {
             Cart cart = cartService.getCart(cartId);
-            CartDto cartDto = cartService.convertToDto(cart);
-            return ResponseEntity.ok(new ApiResponse("Success", cartDto));
+            return ResponseEntity.ok(new ApiResponse("Success", cart));
         } catch (ResourceNotFoundException e) {
           return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
-        }
-    }*/
-
-    @GetMapping("/user/{userId}/my-cart")
-    public ResponseEntity<ApiResponse> getUserCart( @PathVariable Long userId) {
-        try {
-            Cart cart = cartService.getCartByUserId(userId);
-            CartDto cartDto = cartService.convertToDto(cart);
-            return ResponseEntity.ok(new ApiResponse("Success", cartDto));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
     }
 

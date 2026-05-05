@@ -1,6 +1,5 @@
 package com.porto.zakomerce.service.cart;
 
-import com.porto.zakomerce.dto.CartDto;
 import com.porto.zakomerce.model.Cart;
 import com.porto.zakomerce.model.User;
 
@@ -14,6 +13,4 @@ public interface ICartService {
     Cart initializeNewCart(User user);
 
     Cart getCartByUserId(Long userId);
-
-    CartDto convertToDto(Cart cart);
 }
