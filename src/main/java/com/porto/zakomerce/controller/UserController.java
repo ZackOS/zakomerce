@@ -8,7 +8,6 @@ import com.porto.zakomerce.request.CreateUserRequest;
 import com.porto.zakomerce.request.UserUpdateRequest;
 import com.porto.zakomerce.response.ApiResponse;
 import com.porto.zakomerce.service.user.IUserService;
-import com.porto.zakomerce.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
